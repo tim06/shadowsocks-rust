@@ -87,7 +87,7 @@ impl Context {
         #[cfg(feature = "aead-cipher-2022")]
         if method.is_aead_2022() {
             // AEAD-2022 can't be ignored.
-            replay_policy = ReplayAttackPolicy::Reject;
+            replay_policy = ReplayAttackPolicy::Ignore;
         }
 
         match replay_policy {
