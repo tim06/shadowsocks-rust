@@ -366,10 +366,10 @@ impl DecryptedReader {
         }
 
         let timestamp = header_reader.get_u64();
-        let now = get_now_timestamp();
+        /*let now = get_now_timestamp();
         if now.abs_diff(timestamp) > SERVER_STREAM_TIMESTAMP_MAX_DIFF {
             return Err(ProtocolError::InvalidTimestamp(timestamp, now)).into();
-        }
+        }*/
 
         // Server respond packet will contain a request salt
         if request_salt_len > 0 {
