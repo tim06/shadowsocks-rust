@@ -656,7 +656,6 @@ pub fn decrypt_server_payload_aead_2022(
     debug_assert!(user.is_none(), "server respond packet shouldn't have EIH");
 
     let data = &payload[nonce_len..payload.len() - tag_len];
-    println!("payload data: "{data}"");
     let mut cursor = Cursor::new(data);
 
     let server_session_id = cursor.get_u64();
