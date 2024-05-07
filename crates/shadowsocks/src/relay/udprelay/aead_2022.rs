@@ -530,6 +530,15 @@ pub fn decrypt_client_payload_aead_2022(
     let require_eih = method_support_eih(method) && user_manager.is_some();
     let eih_len = if require_eih { 16 } else { 0 };
 
+    // Взятие индекса начала timestamp в payload.
+    let timestamp_index = nonce_len + 8 + 8 + eih_len + 1; // nonce_len + client_session_id (8 байт) + packet_id (8 байт) + eih_len + socket_type (1 байт).
+    // Получение и преобразование в big-endian текущего времени.
+    let now = get_now_timestamp(); // Я предполагаю, что функция get_now_timestamp возвращает u64 текущего UNIX-времени
+    let now_bytes = now.to_be_bytes(); // Преобразование времени в байты формата big-endian.
+    for (payload_byte, &now_byte) in payload[timestamp_index..timestamp_index + 8].iter_mut().zip(&now_bytes) {
+        *payload_byte = now_byte;
+    }
+
     let header_len = nonce_len + tag_len + 8 + 8 + eih_len + 1 + 8 + 2;
     if payload.len() < header_len {
         return Err(ProtocolError::PacketTooShort(header_len, payload.len()));
@@ -538,7 +547,6 @@ pub fn decrypt_client_payload_aead_2022(
     let user = decrypt_message(context, method, key, payload, user_manager)?;
 
     let data = &payload[nonce_len..payload.len() - tag_len];
-    println!("payload data: "{data}"");
     let mut cursor = Cursor::new(data);
 
     let client_session_id = cursor.get_u64();
